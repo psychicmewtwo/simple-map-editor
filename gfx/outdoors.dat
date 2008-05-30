@@ -1,0 +1,129 @@
+
+//Basic tiles...
+//these are land tiles...
+Tiles{
+26 0 grass
+gfx/tiles/grass.gif
+0 0 null(Erase)
+gfx/tiles/null.gif
+1 0 dirt
+gfx/tiles/dirt.gif
+2 0 flower
+gfx/tiles/flowr.gif
+3 0 scrub
+gfx/tiles/scrub.gif
+4 0 rock
+gfx/tiles/rock.gif
+5 0 Grass Dirt NE
+gfx/tiles/gd1.gif
+6 0 Grass Dirt E
+gfx/tiles/gd2.gif
+7 0 Grass Dirt SE
+gfx/tiles/gd3.gif
+8 0 Grass Dirt S
+gfx/tiles/gd4.gif
+9 0 Grass Dirt SW
+gfx/tiles/gd5.gif
+10 0 Grass Dirt W
+gfx/tiles/gd6.gif
+11 0 Grass Dirt NW
+gfx/tiles/gd7.gif
+12 0 Grass Dirt N
+gfx/tiles/gd8.gif
+
+15 0 Grass Sand NE
+gfx/tiles/gs1.gif
+16 0 Grass Sand E
+gfx/tiles/gs2.gif
+17 0 Grass Sand SE
+gfx/tiles/gs3.gif
+18 0 Grass Sand S
+gfx/tiles/gs4.gif
+19 0 Grass Sand SW
+gfx/tiles/gs5.gif
+20 0 Grass Sand W
+gfx/tiles/gs6.gif
+21 0 Grass Sand NE
+gfx/tiles/gs7.gif
+22 0 Grass Sand N
+gfx/tiles/gs8.gif
+
+31 0 Grass Fringe NE
+gfx/tiles/grasstl.gif
+32 0 Grass Fringe NW
+gfx/tiles/grasstr.gif
+33 0 Grass Fringe N
+gfx/tiles/grasst.gif
+34 0 Grass Fringe W
+gfx/tiles/grassl.gif
+35 0 Grass Fringe E
+gfx/tiles/grassr.gif
+36 0 Grass Fringe SW
+gfx/tiles/grassbl.gif
+37 0 Grass Fringe SE
+gfx/tiles/grassbr.gif
+38 0 Grass Fringe S
+gfx/tiles/grassb.gif
+13 0 Scrub2
+gfx/tiles/scrub2.gif
+14 0 sand
+gfx/tiles/sand.gif
+23 1 tree
+gfx/tiles/tree.gif
+24 1 tree2
+gfx/tiles/tree2.gif
+25 1 tree3
+gfx/tiles/tree3.gif
+27 1 stairs
+gfx/tiles/steps.gif
+28 1 stairs
+gfx/tiles/stepl.gif
+29 1 stairs
+gfx/tiles/stepr.gif
+30 1 Cliff Wall
+gfx/tiles/cliffwall.gif
+39 1 Sign 1
+gfx/tiles/sign1.gif
+40 1 Sign 2
+gfx/tiles/sign2.gif
+41 1 River Water
+gfx/tiles/river.png
+43 1 River Bank (1)
+gfx/tiles/river01.png
+44 1 River Bank (2)
+gfx/tiles/river02.png
+45 1 River Bank (3)
+gfx/tiles/river03.png
+46 1 River Bank (4)
+gfx/tiles/river04.png
+47 1 River Bank (5)
+gfx/tiles/river05.png
+48 1 River Bank (6)
+gfx/tiles/river06.png
+49 1 River Bank (7)
+gfx/tiles/river07.png
+50 1 River Bank (8)
+gfx/tiles/river08.png
+51 1 River Bank (9)
+gfx/tiles/river09.png
+52 1 River Bank (10)
+gfx/tiles/river10.png
+53 1 River Bank (11)
+gfx/tiles/river11.png
+54 1 River Bank (12)
+gfx/tiles/river12.png
+55 1 Reeds
+gfx/tiles/riverReed.png
+56 1 Water Lily
+gfx/tiles/riverLily.png
+57 1 River Weeds
+gfx/tiles/riverWeed.png
+58 1 Old Tree
+gfx/tiles/oldtree.png
+59 1 ani fir (From reinerstileset.4players.de)
+gfx/tiles/ani0000.gif
+60 1 Beach
+gfx/tiles/Beach1.png
+61 0 fence
+gfx/tiles/fence.gif
+}
