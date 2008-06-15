@@ -5,250 +5,346 @@ import java.awt.*;
 import java.util.*;
 import java.net.*;
 
-/* TODO: Method to add and remove tiles.
- * TilesetChangeListener class
- * add tilechangelisteners to all classes that need to be notified of changes to tilesets.
- *etc...
+
+/**
+ * Stores a set of tiles which can be requested by id number, or name
  **/
-public class GraphicsBank
-{
-	
-	ArrayList tiles;
-	ArrayList decorations;
-	ArrayList sprites;
-	
-	URL url;
-	
-	public GraphicsBank(URL url)
-	{
-		this.url = url;
-		tiles = new ArrayList(); //not using generics as they arent compatible with 
-		decorations = new ArrayList();
-		sprites = new ArrayList();
-		
-		try
-		{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-			
-			
-			String line = getLine(reader);
-			while(line != null)
-			{
-				if(line.equals("Tiles{"))
-				{
-					line = getLine(reader);
-					while(!line.equals("}"))
-					{
-						String[] param = line.split(" ", 3);
-						int number = Integer.parseInt(param[0]);
-						int type = Integer.parseInt(param[1]);
-						String name = param[2];
-						
-						line = getLine(reader);
-						System.out.println(line);
-						
-						Image tileImg = new ImageIcon(getClass().getResource(line)).getImage();
-						
-						Tile t = new Tile(number, type, name, tileImg, line);
-						
-						tiles.add(t);
-						
-						line = getLine(reader);
-					}
-				}
-				
-				/* Legacy code. Not really supported separately from normal tiles and wont be saved
-				 * separately */
-				else if(line.equals("Edges{"))
-				{
-					line = getLine(reader);
-					while(!line.equals("}"))
-					{
-						String name = line.substring(0, line.length()-1);
-						System.out.println(name);
-						int num = 1;
-						
-						line = getLine(reader);
-						while(!line.equals("}"))
-						{
-							System.out.println(line);
-							String[] param = line.split(" ", 3);
-							int number = Integer.parseInt(param[0]);
-							int type = Integer.parseInt(param[1]);
-							String path = param[2];
-							
-							
-							Image tileImg = new ImageIcon(getClass().getResource(line)).getImage();
-							
-							Tile t = new Tile(number, type, name, tileImg, line);
-							
-							tiles.add(t);
-							
-							line = getLine(reader);
-							
-						}
-						line = getLine(reader);
-					}
-				}
-				
-				/* Decoration class is not used or implemented yet.
-				else if(line.equals("Decorations{"))
-				{
-					line = getLine(reader);
-					while(!line.equals("}"))
-					{
-						String[] param = line.split(" ", 2);
-						int number = Integer.parseInt(param[0]);
-						String name = param[1];
-						line = getLine(reader);
-						
-						Image tileImg = new ImageIcon(getClass().getResource(line)).getImage();
-						
-						Decoration d = new Decoration(number, type, name, tileImage, line);
-						
-						decorations.add(d);
-						line = getLine(reader);
-					}
-				}
-				*/
-				
-				//Sprites are not completed yet.
-				else if(line.equals("Sprites{"))
-				{
-					line = getLine(reader);
-					while(!line.equals("}"))
-					{
-						line = getLine(reader);
-					}
-				}
-				
-				line = getLine(reader);
-			}
-		}
-		catch(IOException e)
-		{
-			throw new RuntimeException("The graphics failed to load");
-		}
-		
-		//Image temp = new ImageIcon(getClass().getResource( "tiles/tile" + (i+1) +".gif" )).getImage();
-		
-		
-	}
-	
-	public void save(File to) throws IOException {
-		System.out.println("Save");
-		String line;
-		
-		PrintWriter out = new PrintWriter(new FileWriter(to));
-		
-		Iterator itr = tiles.iterator();
-		
-		
-		out.println("Tiles{");
-		
-		while(itr.hasNext()) {
-			Tile t = (Tile)itr.next();
-			
-			if(t.imageLocation != null) {
-				line = t.number + " " + t.type + " " + t.name;
-				out.println(line);
-				out.println(t.imageLocation);
-			} else {
-				System.out.println("Error: Can't save "+t.name+". Dont know where the image file is.");
-			}
-			
-			System.out.println("Save tile "+t.name);
-		}
-		out.println("}");
-		
-		out.close();
-	}
-	
-	
-	public void save(String filename) throws MalformedURLException, IOException {
-		save(new File(filename));
-	}
-	
-	/* Skips over comments and blank lines */
-	private String getLine(BufferedReader r) throws IOException
-	{
-		String line = r.readLine();
-		while(true)
-		{
-			if(line == null) return null;
-			
-			else if(line.length() != 0)
-			{
-				if(!(line.length() >= 2 && line.substring(0,2).equals("//")))
-				{
-					return line;
-				}
-			}
-			line = r.readLine();
-		}
-	}
-	
-	public Tile getTile(int i)
-	{
-		Iterator itr = tiles.iterator();
-		while(itr.hasNext()) {
-			Tile t = (Tile)itr.next();
-			if(t.number == i) {
-				return t;
-			}
-		}
-		
-		itr = decorations.iterator();
-		while(itr.hasNext()) {
-			Tile t = (Tile)itr.next();
-			if(t.number == i) {
-				return t;
-			}
-		}
-		return null;
-	}
-	public Tile getTile(String tilename)
-	{
-		Iterator itr = tiles.iterator();
-		while(itr.hasNext()) {
-			Tile t = (Tile)itr.next();
-			if(t.name.equals(tilename)) {
-				return t;
-			}
-		}
-		itr = decorations.iterator();
-		while(itr.hasNext()) {
-			Tile t = (Tile)itr.next();
-			if(t.name.equals(tilename)) {
-				return t;
-			}
-		}
-		return null;
-	}
-	
-	/* changed for arrayList */
-	Iterator getTileIterator()
-	{
-		return tiles.iterator();
-	}
-	Iterator getDecorationIterator()
-	{
-		return decorations.iterator();
-	}
-	
-	public URL getURL()
-	{
-		return url;
-	}
-	
-	public void setEffect(float r, float g, float b, float h, float s, float z)
-	{
-		Iterator i = getTileIterator();
-		while(i.hasNext()) {
-			((Tile)(i.next())).adjustRGBHS(r, g, b, h, s, z);
-		}
-	}
-	
-	
-	
+
+
+
+
+public class GraphicsBank {
+  
+  final static int DEFAULT_TILE_WIDTH = 32;
+  final static int DEFAULT_TILE_HEIGHT = 32;
+  
+  final static String GB_VERSION = "pre-1";
+  final static String DELIM      = ",";
+  final static char   COMMENT    = '#';
+  final static int    ID         = 0;
+  final static int    PATH       = 1;
+  final static int    NAME       = 2;
+  final static int    TYPE       = 3;
+  final static int    EXTRA      = 4;
+  
+  
+  private ArrayList tiles;
+  private ArrayList changeListeners;
+  File loadedFrom;
+  File baseDirectory;
+  private boolean isUnsaved;
+  
+  Dimension baseTileSize;
+  
+  
+  public GraphicsBank() {
+    tiles = new ArrayList();
+    changeListeners = new ArrayList();
+    loadedFrom = null;
+    
+    baseTileSize = new Dimension(DEFAULT_TILE_WIDTH, DEFAULT_TILE_HEIGHT);
+    
+    isUnsaved = false;
+  }
+  
+  
+  public void loadTileset(String from) throws FileNotFoundException, IOException {
+    loadTileset(new File(from));
+  }
+  
+  /**
+   * Load tileset from file.
+   * This will combine the tilesets if one has already been loaded.
+   * The most recently loaded tileset file becomes the "loadedFrom"
+   * tileset.
+   **/
+  public void loadTileset(File from) throws FileNotFoundException, IOException {
+    BufferedReader r;
+    String         line;
+    String         tokens[];
+    int            id;
+    int            lineCount;
+    File           tileFile;
+    
+    
+    if(tiles.size() > 0) {
+    	isUnsaved = true;
+    }
+    
+    baseDirectory = from.getParentFile();
+    this.loadedFrom = from;
+    
+    
+    lineCount = 0;
+    r = new BufferedReader(new FileReader(from));
+    while(true) {
+      line = r.readLine();
+      lineCount++;
+      
+      //stop when no more lines
+      if(line == null) break;
+      line = line.trim();
+      if(line.length() == 0 || line.charAt(0) == COMMENT) {
+        continue; //skip comments and empty lines.
+      }
+      
+      tokens = line.split(DELIM);
+      if(tokens.length < 4) {
+        System.err.println("Could not parse line "+lineCount+". :");
+        System.err.println(line);
+        continue;
+      }
+      try {
+        id = Integer.parseInt(tokens[ID].trim());
+      } catch(Exception e) {
+        System.err.println("Could not parse line "+lineCount+". :");
+        System.err.println(line);
+        continue;
+      }
+      
+      //get file for image
+      tokens[PATH] = tokens[PATH].trim();
+      tokens[NAME] = tokens[NAME].trim();
+      tokens[TYPE] = tokens[TYPE].trim();
+      
+      tileFile = new File(baseDirectory, tokens[PATH]);
+      System.out.println("load tile image: "+tileFile);
+      if(!tileFile.exists()) {
+        tileFile = new File(tokens[PATH]);
+        if(tileFile.exists()) {
+          System.err.println("WARNING: file "+tokens[PATH]+" not within the tilemaps working directory");
+        } else {
+          r.close();
+          throw new FileNotFoundException("File "+tokens[PATH]+" referenced on line "+lineCount +" of "+from+" could not be found");
+        }
+      }
+      
+      System.out.println("New tile: "+id+", name = "+tokens[NAME]);
+      
+      Tile t = null;
+      
+      if(tokens.length > EXTRA) {
+        t = new Tile(id, tileFile.toString(), tokens[NAME].trim(), tokens[TYPE].trim(), tokens[EXTRA].trim());
+      } else {      
+        t = new Tile(id, tileFile.toString(), tokens[NAME], tokens[TYPE]);
+      }
+      tiles.add(t);
+    }
+  } //end loadTileset
+  
+  
+  /**
+   * Save the tileset to the specified file.
+   * Will overwrite file if it exists.
+   **/
+  void saveTileset(File to) throws IOException{
+    PrintWriter w = new PrintWriter(new FileWriter(to));
+    w.println("# Generated by version "+GB_VERSION+" of GraphicsBank");
+    w.println("Tile Number, Image file, Tile Name, Type, Extended Info");
+    Iterator i = tiles.iterator();
+    while(i.hasNext()) {
+      Tile t = (Tile)i.next();
+      File tf = new File(t.getPath()).getCanonicalFile();
+      String relPath = RelativePath.getRelativePath(new File(baseDirectory.getCanonicalPath()), new File(tf.getCanonicalPath()));
+      w.print(""+t.getNumber() + ", "+relPath + ", " + t.getName() + ", "+t.getType());
+      if(t.getInfo() != null) {
+        w.println(", "+t.getInfo());
+      } else {
+        w.println();
+      }
+    }
+    w.close();
+    isUnsaved = false;
+  }
+  
+  /**
+   * Get the tileset file this tileset was loaded from.
+   * May return NULL if this is a new tileset that has never been saved.
+   **/
+  File getFile() {
+    return loadedFrom;
+  }
+  
+  /**
+   * Get a tile by number
+   **/
+  Tile getTile(int number) {
+    Iterator i = tiles.iterator();
+    while(i.hasNext()) {
+      Tile t = (Tile)i.next();
+      if(t.number == number) {
+        return t;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Get a tile by name. Case sensitive
+   **/
+  Tile getTile(String name) {
+    Iterator i = tiles.iterator();
+    while(i.hasNext()) {
+      Tile t = (Tile)i.next();
+      if(t.getName().equals(name)) {
+        return t;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Rwemove a tile from the graphics bank. Any registered change listeners
+   * will be notified.
+   **/
+  Tile remove(Tile t) {
+  	Tile rm = null;
+  	if(tiles.remove(t)) {
+  		rm = t;
+  	}
+    if(t != null) {
+    	fireRemoveEvent(t);
+    	isUnsaved = true;
+    }
+  	return t;
+  }
+  
+  /**
+   * Add a tile to the graphics bank. Any registered change listeners
+   * will be notified.
+   **/
+  void add(Tile t) {
+  	/* TODO: validate the tile */
+  	tiles.add(t);
+    isUnsaved = true;
+    fireAddEvent(t);
+  }
+  
+  int size() {
+  	return tiles.size();
+  }
+  
+  Dimension getBaseTileSize() {
+  	return baseTileSize;
+  }
+  
+  /**
+   * Iterator for tile objects
+   **/
+  Iterator iterator() {
+    return tiles.iterator();
+  }
+  
+  /**
+   * Set a global colour adjustment effect for all tiles in the
+   * graphics bank. This will override any individually set
+   * effects on all tiles.
+   **/
+  public void setEffect(float r, float g, float b, float h, float s, float z)
+  {
+    Iterator i = tiles.iterator();
+    while(i.hasNext()) {
+      ((Tile)(i.next())).adjustRGBHS(r, g, b, h, s, z);
+    }
+  }
+  
+  /**
+   * True if there have been any changes to the tileset since it
+   * was last saved or loaded.
+   **/
+  public boolean isUnsaved() {
+    return isUnsaved;
+  }
+  
+  /**
+   * Get the directory that the tileset file describing this
+   * tileset was found in.
+   **/
+  File getBaseDirectory() {
+    return baseDirectory;
+  }
+  
+  /**
+   * Get an unused tile number. Returns one more than the
+   * highest number used.
+   **/
+  int getUnusedNumber() {
+  	int n = 1;
+  	Iterator i = tiles.iterator();
+    while(i.hasNext()) {
+    	Tile t = (Tile)i.next();
+    	if(n <= t.getNumber()) {
+    		n = t.getNumber() + 1;
+    	}
+    }
+    return n;
+  }
+  
+  
+  
+  /**
+   * Add a GraphicsBankChangeListener to the graphics bank.
+   * This listener will be notified whenever the tileset
+   * is changed.
+   **/
+  void addChangeListener(GraphicsBankChangeListener l) {
+  	changeListeners.add(l);
+  }
+  /**
+   * Remove a GraphicsBankChangeListener from the graphics bank.
+   **/
+  void removeChangeListener(GraphicsBankChangeListener l) {
+  	changeListeners.remove(l);
+  }
+  
+  /**
+   * May be called directly, and will cause
+   * the tilesetUpdated() method of every registered
+   * GraphicsBankChangeListener object to be called.
+   **/
+  public void fireChangeEvent() {
+  	GraphicsBankChangeListener l;
+  	Iterator i = changeListeners.iterator();
+  	while(i.hasNext()) {
+  		l = (GraphicsBankChangeListener)i.next();
+  		l.tilesetUpdated(this);
+  	}
+  }
+  /**
+   * Called whenever a tile is added using add(). will cause
+   * the tileAdded() method of every registered
+   * GraphicsBankChangeListener object to be called.
+   **/
+  private void fireAddEvent(Tile t) {
+  	System.out.println("Fire add event");
+  	GraphicsBankChangeListener l;
+  	Iterator i = changeListeners.iterator();
+  	while(i.hasNext()) {
+  		l = (GraphicsBankChangeListener)i.next();
+  		l.tileAdded(this, t);
+  	}
+  }
+  /**
+   * Called whenever a tile is removed using remove().
+   * will cause the tileRemoved() method of every registered
+   * GraphicsBankChangeListener object to be called.
+   **/
+  private void fireRemoveEvent(Tile t) {
+  	GraphicsBankChangeListener l;
+  	Iterator i = changeListeners.iterator();
+  	while(i.hasNext()) {
+  		l = (GraphicsBankChangeListener)i.next();
+  		l.tileRemoved(this, t);
+  	}
+  }
+}
+
+
+interface GraphicsBankChangeListener {
+	/* Large change happened such as loading a tileset */
+  public void tilesetUpdated(GraphicsBank bank);
+  /* A single tile was removed */
+  public void tileRemoved(GraphicsBank bank, Tile removed);
+  /* A single tile was added */
+  public void tileAdded(GraphicsBank bank, Tile added);
 }

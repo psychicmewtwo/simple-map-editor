@@ -24,7 +24,7 @@ import java.awt.*;
 public class Map
 {
 	/* change the below two numbers if you want the grid size to be different.
-	 * ndividual tile images may be any size. */
+	 * individual tile images may be any size. */
 	int tileWidth = 32;
 	int tileHeight = 32;
 	
@@ -150,11 +150,10 @@ public class Map
 			{
 				for(int x=(int)minX; x<maxX;  x++)
 				{
-					if(tiles[x][y][z]!= null)
+					if(tiles[x][y][z]!= null) {
 						tiles[x][y][z].render(g, x*zoomWidth+zoomWidth, y*zoomHeight+zoomHeight);
-					
+					}
 				}
-				
 			}
 		}
 	}
@@ -172,11 +171,10 @@ public class Map
 		{
 			for(int x=(int)minX; x<maxX;  x++)
 			{
-				if(tiles[x][y][z]!= null)
-					tiles[x][y][z].render(g, x*zoomWidth+zoomWidth, y*zoomHeight+zoomWidth);
-				
+				if(tiles[x][y][z]!= null) {
+					tiles[x][y][z].render(g, x*zoomWidth+zoomWidth, y*zoomHeight+zoomHeight);
+				}
 			}
-			
 		}
 	}
 	

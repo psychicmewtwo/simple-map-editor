@@ -7,7 +7,6 @@ import javax.swing.*;
 import java.io.*;
 import java.util.*;
 import java.beans.*;
-import java.awt.dnd.*;
 
 /**
  * map editor. This class may be quite hacky. <p>
@@ -15,7 +14,7 @@ import java.awt.dnd.*;
  * I intend to extend this to three-layer maps, and
  * to introduce some more interesting tiles to the set.
  */
-public class MapEdit implements ActionListener, ChangeListener, DropTargetListener, KeyListener
+public class MapEdit implements ActionListener, ChangeListener, KeyListener
 {
 	boolean compactToolbars = true;
 	boolean borderedButtons = true;
@@ -38,7 +37,6 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	Scene        scene;         // Scene in which the map is found
 	GraphicsBank gfx;           // Graphics bank used by this scene. All the tiles.
 	
-	DropTarget dropTarget;
 	
 	/* Toolbar buttons, self-explanatory */
 	JToolBar      outerToolBar;
@@ -58,6 +56,7 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	JButton       decreaseWidthBtn;
 	JButton       increaseHeightBtn;
 	JButton       decreaseHeightBtn;
+	JButton       tsEditBtn;
 	JToggleButton palletteBtn;
 	
 	/* Second toolbar buttons */
@@ -85,6 +84,16 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	JMenuItem about;
 	JMenuItem howToUse;
 	
+	/* tileset settings */
+  JLabel tilesetFileLabel;
+  JButton tilesetOpenBtn;
+  JButton tilesetNewBtn;
+  JButton tilesetSaveBtn;
+  JSpinner tilesetGridWField;
+  JSpinner tilesetGridHField;
+	
+	
+	
 	
 	/* for the dialog */
 	JButton effectsResetBtn;
@@ -103,44 +112,32 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	boolean autoEdging = true;
 	
 	
-	public void dragEnter(DropTargetDragEvent dtde) {
-		//dtde.rejectDrag();
-		System.out.println("dragEnter");
-	}
-	public void dragExit(DropTargetEvent dtde) {
-		System.out.println("dragExit");
-	}
-	public void dragOver(DropTargetDragEvent dtde) {
-		System.out.println("dragOver");
-	}
-	public void drop(DropTargetDropEvent dtde) {
-		System.out.println("drop");
-	}
-	public void dropActionChanged(DropTargetDragEvent dtde) {
-		System.out.println("dropActionChanged");
-	}
 	public MapEdit()
 	{
 		//gfx = new GraphicsBank();
 		zoomLevel = 1;
 		openFile = null;
-		scene = Scene.loadScene(getClass().getResource("scenes/myScene.dat"));
+		try {
+		  scene = Scene.loadScene("scenes/myScene.dat");
+		} catch(IOException e) {
+		  scene = new Scene();
+		}
 		map = scene.getMap();
 		gfx = scene.getTileset();
 		try {
 			System.out.println("dragOver");
-			gfx.save("temp.txt");
+			gfx.saveTileset(new File("temp.txt"));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		tileChooser = new TileChooser(gfx);
-		chooser = new JFileChooser("./scenes");
-		
 		/* so that the window contents resize while you drag. */
 		Toolkit.getDefaultToolkit().setDynamicLayout(true); 
 		
 		mainFrame = new JFrame();
 		mainFrame.setTitle("Map Editor by Judd");
+		
+		tileChooser = new TileChooser(gfx, mainFrame);
+		chooser = new JFileChooser("./scenes");
 		
 		
 		
@@ -179,6 +176,52 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 		
 		/* Settings panel */
 		settingsPanel = new JPanel(new BorderLayout());
+	  
+	  /* Map */
+	  JPanel mapSettingsPanel = new JPanel();
+	  mapSettingsPanel.setBorder(new TitledBorder("Map"));
+	  
+	  /* Tileset */
+    JPanel tsSettingsPanel = new JPanel(new GridBagLayout());
+    //tsSettingsPanel.setPreferredSize(new Dimension(1000, 1));
+    tsSettingsPanel.setBorder(new TitledBorder("Tileset"));
+    tilesetFileLabel = new JLabel("Tileset file label");
+    tilesetGridWField = new JSpinner();
+    tilesetGridHField = new JSpinner();
+    tilesetGridWField.setValue(new Integer(32));
+    tilesetGridHField.setValue(new Integer(32));
+    tilesetNewBtn = new JButton("New");
+    tilesetOpenBtn = new JButton("Open");
+    tilesetSaveBtn = new JButton("Save");
+    
+    GridBagConstraints c = new GridBagConstraints();
+    c.fill = GridBagConstraints.BOTH;
+    c.gridx = 0;
+    c.gridy = 0;
+		tsSettingsPanel.add(tilesetFileLabel, c);
+		
+    c.gridy = 1;
+    c.gridx = 0;
+    tsSettingsPanel.add(tilesetNewBtn, c);
+    c.gridx = 1;
+    tsSettingsPanel.add(tilesetOpenBtn);
+    c.gridx = 3;
+    tsSettingsPanel.add(tilesetSaveBtn);
+    
+    
+    c.gridy = 2;
+    c.gridx = 0;
+    tsSettingsPanel.add(new JLabel("Grid size"), c);
+    c.gridx = 1;
+    tsSettingsPanel.add(tilesetGridWField, c);
+    c.gridx = 2;
+    tsSettingsPanel.add(new JLabel("x"), c);
+    c.gridx = 3;
+    tsSettingsPanel.add(tilesetGridHField, c);
+    
+    settingsPanel.add(tsSettingsPanel, BorderLayout.NORTH);
+    
+		/*
 		JPanel mapSettings = new JPanel(new GridLayout(3, 3));
 		
 		settingsPanel.add(mapSettings, BorderLayout.NORTH);
@@ -203,29 +246,44 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 		mapSettings.setBorder(new TitledBorder("Map"));
 		
 		JPanel secondP = new JPanel(new BorderLayout());
+		
+		
 		tilesetSettingsPanel = new JPanel();
 		settingsPanel.add(secondP, BorderLayout.CENTER);
 		secondP.add(tilesetSettingsPanel, BorderLayout.NORTH);
 		tilesetSettingsPanel.setBorder(new TitledBorder("Tileset"));
-		bl = new BoxLayout(tilesetSettingsPanel, BoxLayout.X_AXIS);
-		tilesetSettingsPanel.setLayout(bl);
 		
-		JTextField size3 = new JTextField("32");
-		JTextField size4 = new JTextField("32");
-		tilesetSettingsPanel.add(new JLabel("Tile Size  "));
-		tilesetSettingsPanel.add(size3);
-		tilesetSettingsPanel.add(new JLabel(" x "));
-		tilesetSettingsPanel.add(size4);
+		bl = new BoxLayout(tilesetSettingsPanel, BoxLayout.Y_AXIS);
+		tilesetSettingsPanel.setLayout(bl);
+    
+    JPanel tssp1 = new JPanel();
+    JPanel tssp2 = new JPanel();
+    bl = new BoxLayout(tssp2, BoxLayout.X_AXIS);
+		
+		
+		
+		
+		
+    JTextField tilesetGridWField = new JTextField("32");
+    JTextField tilesetGridHField = new JTextField("32");
+    tssp2.add(new JLabel("Tile Size  "));
+    tssp2.add(tilesetGridWField);
+    tssp2.add(new JLabel(" x "));
+    tssp2.add(tilesetGridHField);
+    tilesetSettingsPanel.add(tssp1);
+    tilesetSettingsPanel.add(tssp2);
+    
+    
+    
 		
 		secondP.add(colorDialog, BorderLayout.CENTER);
-		
+		*/
 		tabPane.add("Settings", settingsPanel);
 		
 		
 		/* Scrollable map panel creation and placement */
 		mapPanel = new MapComponent(map, this);
 		
-		dropTarget = new DropTarget(mapPanel, this);
 		
 		mapScroll = new JScrollPane(mapPanel);
 		mapPanel.setViewport(mapScroll.getViewport());
@@ -383,6 +441,8 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 		increaseHeightBtn = makeBtn("\\/ +", "icons/increaseHeight.gif", "Increase field height");
 		decreaseHeightBtn = makeBtn("^^ -",  "icons/decreaseHeight.gif", "Decrease field height");
 		
+		tsEditBtn = makeBtn("Tileset",  "icons/tsEdit.gif", "Tileset Editor");
+		
 		/* Other map manipulation buttons */
 		fillBtn = makeToggleBtn("Flood Fill", "icons/fill.gif", "Flood fill mode");
 		undoBtn = makeBtn("Undo", "icons/undo.gif", "Undo");
@@ -446,6 +506,9 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 		innerToolBar.add(decreaseWidthBtn);
 		innerToolBar.add(increaseHeightBtn);
 		innerToolBar.add(decreaseHeightBtn);
+		
+		innerToolBar.addSeparator();
+		innerToolBar.add(tsEditBtn);
 		
 		gridBtn.setSelected(true);
 		layerButtons[0].setSelected(true);
@@ -664,7 +727,7 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	 **/
 	private void setGraphicsBank(GraphicsBank gfx)
 	{
-		tileChooser = new TileChooser(gfx);
+		tileChooser = new TileChooser(gfx, mainFrame);
 		chooserPanel.removeAll();
 		chooserPanel.add(tileChooser, BorderLayout.NORTH);
 	}
@@ -678,6 +741,7 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	 **/
 	public void saveFile(File file)
 	{
+	  System.err.println("Saving scene as "+file);
 		scene.saveScene(file);
 		openFile = file;
 		mainFrame.validate();
@@ -691,7 +755,7 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 		try
 		{
 			zoomLevel = 1;
-			scene = Scene.loadScene(file.toURL());
+			scene = Scene.loadScene(file);
 			map = scene.getMap();
 			setGraphicsBank(scene.getTileset());
 			
@@ -712,7 +776,7 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 		}
 		catch(IOException e)
 		{
-			System.out.println("Invalid Map File");
+			System.out.println("Invalid Map File. " + e);
 		}
 		
 	}
@@ -721,16 +785,23 @@ public class MapEdit implements ActionListener, ChangeListener, DropTargetListen
 	 * creates a new scene with a new map, 10 by 10 null tiles,
 	 * and an empty list of sprites.
 	 **/
-	public void newFile()
-	{
-		scene = new Scene(new Map(10,10), new ArrayList(), new GraphicsBank(getClass().getResource("gfx/outdoors.dat")));
-		zoomLevel = 1;
-		map = scene.getMap();
-		setGraphicsBank(scene.getTileset());
-		mapPanel.setMap(map);
-		mapPanel.repaint();
-		mainFrame.validate();
-	}
+  public void newFile()
+  {
+    GraphicsBank gfx = new GraphicsBank();
+    try {
+      gfx.loadTileset(new File("gfx/outdoors.dat"));
+    } catch(Exception e) {
+      System.err.println("Could not load default graphics bank, using blank one.");
+      gfx = new GraphicsBank();
+    }
+    scene = new Scene(new Map(10,10), new ArrayList(), gfx);
+    zoomLevel = 1;
+    map = scene.getMap();
+    setGraphicsBank(scene.getTileset());
+    mapPanel.setMap(map);
+    mapPanel.repaint();
+    mainFrame.validate();
+  }
 	
 	
 	/**
