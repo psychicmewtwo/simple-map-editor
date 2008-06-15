@@ -39,15 +39,14 @@ public class Scene
 		sprites = s;
 		this.tileset = gfx;
 		
-			String ts = tileset.getURL().getFile();
-			StringTokenizer tst = new StringTokenizer(ts, "/\\ ");
-			while(tst.hasMoreTokens())
-			{
-				ts = tst.nextToken();
-			}
-			System.out.println(tileset);
-			
 	}
+	
+	/* Create a new empty scene */
+  public Scene() {
+    map    = new Map(10, 10, 32, 32);
+    tileset = new GraphicsBank();
+  }
+	
 	
 	public GraphicsBank getTileset()
 	{
@@ -57,7 +56,7 @@ public class Scene
 	/**
 	 * loads a scene from the given URL. takes tiles from the given GraphicsBank.
 	 */
-	static Scene loadScene(URL url)
+	static Scene loadScene(File f) throws IOException
 	{
 		boolean hasColourEffect = false;
 		float r = 1;
@@ -65,94 +64,96 @@ public class Scene
 		float b = 1;
 		float h = 0;
 		float s = 1;
+	
+		BufferedReader reader = new BufferedReader(new FileReader(f));
 		
-		try
+		String line = reader.readLine();
+		
+		StringTokenizer tokens = new StringTokenizer(line);
+		int width = Integer.parseInt(tokens.nextToken());
+		int height = Integer.parseInt(tokens.nextToken());
+		
+		String tileset = tokens.nextToken();
+		
+		GraphicsBank gfx = new GraphicsBank();
+    
+    System.out.println("Attempt to load tileset "+tileset);
+    
+    
+    
+    System.out.println("Working path is "+f.getParentFile());
+		
+		
+		
+		
+		
+		File ts = new File(f.getParentFile(), tileset);
+		System.out.println("Attempt to load tileset "+ts.getAbsoluteFile());
+		
+		
+		gfx.loadTileset(ts);
+		
+		Map map = new Map(width, height);
+		
+		line = reader.readLine();
+		tokens = new StringTokenizer(line);
+		
+		if(tokens.nextToken().equalsIgnoreCase("colorization")) {
+			hasColourEffect = true;
+			r = Float.parseFloat(tokens.nextToken());
+			g = Float.parseFloat(tokens.nextToken());
+			b = Float.parseFloat(tokens.nextToken());
+			h = Float.parseFloat(tokens.nextToken());
+			s = Float.parseFloat(tokens.nextToken());
+		}
+		
+		while(! line.equals("."))
 		{
-			BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-			
-			String line = reader.readLine();
-			
-			StringTokenizer tokens = new StringTokenizer(line);
-			int width = Integer.parseInt(tokens.nextToken());
-			int height = Integer.parseInt(tokens.nextToken());
-			
-			String tileset = tokens.nextToken();
-			
-			GraphicsBank gfx = new GraphicsBank(new Tile().getClass().getResource("gfx/"+tileset));
-			
-			Map map = new Map(width, height);
-			
+			line = reader.readLine();
+		}
+		
+		
+		for(int z=0; z<3; z++)
+		{
 			line = reader.readLine();
 			tokens = new StringTokenizer(line);
 			
-			if(tokens.nextToken().equalsIgnoreCase("colorization")) {
-				hasColourEffect = true;
-				r = Float.parseFloat(tokens.nextToken());
-				g = Float.parseFloat(tokens.nextToken());
-				b = Float.parseFloat(tokens.nextToken());
-				h = Float.parseFloat(tokens.nextToken());
-				s = Float.parseFloat(tokens.nextToken());
-			}
-			
-			while(! line.equals("."))
+			for(int y=0; y<height; y++)
 			{
-				line = reader.readLine();
-			}
-			
-			
-			for(int z=0; z<3; z++)
-			{
-				line = reader.readLine();
-				tokens = new StringTokenizer(line);
-				
-				for(int y=0; y<height; y++)
+				for(int x=0; x<width; x++)
 				{
-					for(int x=0; x<width; x++)
-					{
-						String code = tokens.nextToken();
-						map.setTile(x, y, z, gfx.getTile(Integer.parseInt(code)));
-					}
+					String code = tokens.nextToken();
+					map.setTile(x, y, z, gfx.getTile(Integer.parseInt(code)));
 				}
 			}
-			reader.close();
-			
-			Scene scene = new Scene(map, new ArrayList(), gfx);
-			scene.tileset = gfx;
-			if(hasColourEffect) {
-				System.out.println("Calling setEffect on scene recently loaded.");
-				scene.setEffect(r, g, b, h, s, 1f);
-			}
-			return scene;
-			
 		}
-		catch(IOException e)
-		{
-			throw new RuntimeException("Could not load map: "+e.getMessage());
+		reader.close();
+		
+		Scene scene = new Scene(map, new ArrayList(), gfx);
+		scene.tileset = gfx;
+		if(hasColourEffect) {
+			System.out.println("Calling setEffect on scene recently loaded.");
+			scene.setEffect(r, g, b, h, s, 1f);
 		}
+		return scene;
+		
 	}
 	
-	static Scene loadScene(String url) {
-		
-		try {
-			Scene scene = loadScene(new URL(url));
-			return scene;
-		} catch (Exception e) {
-			try {
-				Scene scene = loadScene(new File(url).toURL());
-				return scene;
-			} catch (Exception f) {
-				System.out.println("Failed to load the scene from "+url+
-				                   ". This is not a valid URL or file on the local filesystem.");
-				System.out.println(f);
-				return null;
-			}
-		}
-	}
+	
+    static Scene loadScene(String filename) throws IOException {
+      Scene scene = loadScene(new File(filename));
+      return scene;
+    }
 	/**
 	 * writes the map only (at the moment) to a file.
 	 */
-	public void saveScene(File file)
-	{
+  public void saveScene(File file)
+  {
+    if(tileset.isUnsaved()) {
+      throw new RuntimeException("Tileset is unsaved. Cannot save the scene");
+    }
+    
+	 
 		try
 		{
 			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));
@@ -162,15 +163,16 @@ public class Scene
 			int width = map.getWidth();
 			int height = map.getHeight();
 			
-			String ts = tileset.getURL().getFile();
-			StringTokenizer tst = new StringTokenizer(ts, "/\\ ");
-			while(tst.hasMoreTokens())
-			{
-				ts = tst.nextToken();
-			}
-			System.out.println(ts);
 			
-			line = width + " " + height + " " + ts;
+      
+      File wd = new File(file.getParentFile().getCanonicalFile().toString());
+			File ts = new File(tileset.getFile().getCanonicalFile().toString());
+			
+			String relativePath = RelativePath.getRelativePath(wd, ts);
+			
+
+			
+      line = width + " " + height + " " + relativePath;
 			writer.println(line);
 			
 			line = "colorization " + effect_rScale +
@@ -208,10 +210,10 @@ public class Scene
 		}
 		catch(IOException e)
 		{
-			throw new RuntimeException("Could not load the level");
+			throw new RuntimeException("Could not save the level");
 		}
 		
-		
+		System.err.println("Saved");
 	}
 	
 	/**
