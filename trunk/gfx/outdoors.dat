@@ -52,7 +52,7 @@ Tile Number, Image file, Tile Name, Type, Extended Info
 52, tiles\stepl.gif, New Tile 52, No Type
 53, tiles\stepr.gif, New Tile 53, No Type
 54, tiles\steps.gif, New Tile 54, No Type
-55, tiles\cliffwall.gif, New Tile 55, No Type, 
-56, ..\..\..\..\cloud.png, Cloud Shadow, Decoration, ooo pretty
+55, tiles\cliffwall.gif, New Tile 55, No Type
 57, tiles\river.png, New Tile 57, No Type
 58, tiles\grasst.gif, New Tile 58, No Type
+56, tiles\cloud32.png, New Tile 59, No Type, 
