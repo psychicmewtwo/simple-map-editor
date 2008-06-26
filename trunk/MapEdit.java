@@ -168,7 +168,7 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		JPanel tilesetInfoBtnPane = new JPanel(new FlowLayout());
 	  //tilesetInfoBtnPane.setBorder(new TitledBorder("tilesetInfoBtnPane"));
 		tilesetInfoPane.add(tilesetInfoBtnPane, BorderLayout.CENTER);
-		chooserPanel.add(tilesetInfoPane, BorderLayout.NORTH);
+		chooserPanel.add(tilesetInfoPane, BorderLayout.SOUTH);
 		tilesetInfoPane.add(tilesetFileLabel, BorderLayout.NORTH);
 		
 		tilesetOpenBtn = makeBtn("Open", "icons/opents.gif", "Load Tileset");
@@ -657,7 +657,7 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		scene.setTileset(gfx);
 		chooserPanel.removeAll();
 		tileChooser = new TileChooser(gfx, mainFrame);
-		chooserPanel.add(tilesetInfoPane, BorderLayout.NORTH);
+		chooserPanel.add(tilesetInfoPane, BorderLayout.SOUTH);
 		JScrollPane tileScroll = new JScrollPane(tileChooser);
 		chooserPanel.add(tileScroll, BorderLayout.CENTER);
 		mainFrame.repaint();
