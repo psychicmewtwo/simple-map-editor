@@ -19,9 +19,13 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 	boolean compactToolbars = true;
 	boolean borderedButtons = true;
 	
+	public static final int PAINT_NORMAL = 0;
+	public static final int PAINT_FILL   = 1;
+	
 	JFrame       mainFrame;     // The window.
 	MapComponent mapPanel;      // Special panel for rendering map with a viewport.
 	JFileChooser chooser;       // For save and load alike
+	JFileChooser tschooser;     // For tilesets
 	TileChooser  tileChooser;
 	JSplitPane   split;         // provides the movable divider next to tile chooser
 	JScrollPane  mapScroll;     // ScrollPane for the Map
@@ -85,6 +89,7 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 	JMenuItem howToUse;
 	
 	/* tileset settings */
+	JPanel tilesetInfoPane;
   JLabel tilesetFileLabel;
   JButton tilesetOpenBtn;
   JButton tilesetNewBtn;
@@ -92,24 +97,10 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
   JSpinner tilesetGridWField;
   JSpinner tilesetGridHField;
 	
-	
-	
-	
 	/* for the dialog */
 	JButton effectsResetBtn;
-		
-	public static final int PAINT_NORMAL = 0;
-	public static final int PAINT_FILL   = 1;
 	
-	int getPaintMode() {
-		if(fillBtn.isSelected()) {
-			return PAINT_FILL;
-		} else {
-			return PAINT_NORMAL;
-		}
-	}
 	
-	boolean autoEdging = true;
 	
 	
 	public MapEdit()
@@ -118,10 +109,11 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		zoomLevel = 1;
 		openFile = null;
 		try {
-		  scene = Scene.loadScene("scenes/myScene.dat");
+		  scene = Scene.loadScene("lastOpenScene.dat");
 		} catch(IOException e) {
 		  scene = new Scene();
 		}
+		
 		map = scene.getMap();
 		gfx = scene.getTileset();
 		try {
@@ -137,9 +129,8 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		mainFrame.setTitle("Map Editor by Judd");
 		
 		tileChooser = new TileChooser(gfx, mainFrame);
-		chooser = new JFileChooser("./scenes");
-		
-		
+		chooser = new JFileChooser("scenes");
+		tschooser = new JFileChooser("gfx");
 		
 		/* outer-most containers actually reserved for docking the toolbars.
 		 * so "cp" is actually not the contentpane of the JPanel, but let's
@@ -164,120 +155,45 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		innerToolPane.add(innerToolBar, BorderLayout.NORTH);
 		outerToolPane.add(outerToolBar, BorderLayout.NORTH);
 		
+		
+		
+		
+		
 		/* TileChooser placement */
-		JPanel allTiles = new JPanel();
 		chooserPanel = new JPanel(new BorderLayout());
-		chooserPanel.add(tileChooser, BorderLayout.NORTH);
-		JScrollPane tileScroll = new JScrollPane(chooserPanel);
-		JScrollPane allScroll = new JScrollPane(allTiles);
+		
+	  //chooserPanel.setBorder(new TitledBorder("chooserPanel"));
+		JScrollPane tileScroll = new JScrollPane(tileChooser);
+		chooserPanel.add(tileScroll, BorderLayout.CENTER);
 		JTabbedPane tabPane = new JTabbedPane();
-		tabPane.add("Tiles", tileScroll);
+		tabPane.add("Tiles", chooserPanel);
+		
+		tilesetFileLabel = new JLabel("Tileset: * unsaved *");
+		tilesetInfoPane = new JPanel(new BorderLayout());
+	  //tilesetInfoPane.setBorder(new TitledBorder("tilesetInfoPane"));
+		JPanel tilesetInfoBtnPane = new JPanel(new FlowLayout());
+	  //tilesetInfoBtnPane.setBorder(new TitledBorder("tilesetInfoBtnPane"));
+		tilesetInfoPane.add(tilesetInfoBtnPane, BorderLayout.CENTER);
+		chooserPanel.add(tilesetInfoPane, BorderLayout.NORTH);
+		tilesetInfoPane.add(tilesetFileLabel, BorderLayout.NORTH);
+		
+		tilesetOpenBtn = makeBtn("Open", "icons/opents.gif", "Load Tileset");
+		tilesetNewBtn  = makeBtn("New",  "icons/newts.gif",  "New Tileset");
+		tilesetSaveBtn = makeBtn("Save", "icons/savets.gif", "Save Tileset");
+		tilesetInfoBtnPane.add(tilesetOpenBtn);
+		tilesetInfoBtnPane.add(tilesetNewBtn);
+		tilesetInfoBtnPane.add(tilesetSaveBtn);
 		
 		
 		/* Settings panel */
 		settingsPanel = new JPanel(new BorderLayout());
-	  
-	  /* Map */
-	  JPanel mapSettingsPanel = new JPanel();
-	  mapSettingsPanel.setBorder(new TitledBorder("Map"));
-	  
-	  /* Tileset */
-    JPanel tsSettingsPanel = new JPanel(new GridBagLayout());
-    //tsSettingsPanel.setPreferredSize(new Dimension(1000, 1));
-    tsSettingsPanel.setBorder(new TitledBorder("Tileset"));
-    tilesetFileLabel = new JLabel("Tileset file label");
-    tilesetGridWField = new JSpinner();
-    tilesetGridHField = new JSpinner();
-    tilesetGridWField.setValue(new Integer(32));
-    tilesetGridHField.setValue(new Integer(32));
-    tilesetNewBtn = new JButton("New");
-    tilesetOpenBtn = new JButton("Open");
-    tilesetSaveBtn = new JButton("Save");
-    
-    GridBagConstraints c = new GridBagConstraints();
-    c.fill = GridBagConstraints.BOTH;
-    c.gridx = 0;
-    c.gridy = 0;
-		tsSettingsPanel.add(tilesetFileLabel, c);
-		
-    c.gridy = 1;
-    c.gridx = 0;
-    tsSettingsPanel.add(tilesetNewBtn, c);
-    c.gridx = 1;
-    tsSettingsPanel.add(tilesetOpenBtn);
-    c.gridx = 3;
-    tsSettingsPanel.add(tilesetSaveBtn);
-    
-    
-    c.gridy = 2;
-    c.gridx = 0;
-    tsSettingsPanel.add(new JLabel("Grid size"), c);
-    c.gridx = 1;
-    tsSettingsPanel.add(tilesetGridWField, c);
-    c.gridx = 2;
-    tsSettingsPanel.add(new JLabel("x"), c);
-    c.gridx = 3;
-    tsSettingsPanel.add(tilesetGridHField, c);
-    
-    settingsPanel.add(tsSettingsPanel, BorderLayout.NORTH);
-    
-		/*
-		JPanel mapSettings = new JPanel(new GridLayout(3, 3));
-		
-		settingsPanel.add(mapSettings, BorderLayout.NORTH);
-		mapSettings.add(new JLabel("Size"));
-		JPanel sizePanel = new JPanel();
-		BoxLayout bl = new BoxLayout(sizePanel, BoxLayout.X_AXIS);
-		sizePanel.setLayout(bl);
-		JTextField size1 = new JTextField("10");
-		JTextField size2 = new JTextField("20");
-		sizePanel.add(size1);
-		sizePanel.add(new JLabel(" x "));
-		sizePanel.add(size2);
-		JButton applyMapSettingsBtn = new JButton("Apply");
-		mapSettings.add(sizePanel);
-		
-		mapSettings.add(new JLabel("Layers"));
-		JSpinner layersField = new JSpinner();
-		layersField.setValue(new Integer(3));
-		mapSettings.add(layersField);
-		mapSettings.add(new JLabel(""));
-		mapSettings.add(applyMapSettingsBtn);
-		mapSettings.setBorder(new TitledBorder("Map"));
-		
-		JPanel secondP = new JPanel(new BorderLayout());
-		
-		
-		tilesetSettingsPanel = new JPanel();
-		settingsPanel.add(secondP, BorderLayout.CENTER);
-		secondP.add(tilesetSettingsPanel, BorderLayout.NORTH);
-		tilesetSettingsPanel.setBorder(new TitledBorder("Tileset"));
-		
-		bl = new BoxLayout(tilesetSettingsPanel, BoxLayout.Y_AXIS);
-		tilesetSettingsPanel.setLayout(bl);
-    
-    JPanel tssp1 = new JPanel();
-    JPanel tssp2 = new JPanel();
-    bl = new BoxLayout(tssp2, BoxLayout.X_AXIS);
-		
-		
-		
-		
-		
-    JTextField tilesetGridWField = new JTextField("32");
-    JTextField tilesetGridHField = new JTextField("32");
-    tssp2.add(new JLabel("Tile Size  "));
-    tssp2.add(tilesetGridWField);
-    tssp2.add(new JLabel(" x "));
-    tssp2.add(tilesetGridHField);
-    tilesetSettingsPanel.add(tssp1);
-    tilesetSettingsPanel.add(tssp2);
+	  settingsPanel.setBorder(new TitledBorder("Settings"));
+	  settingsPanel.add(colorDialog, BorderLayout.CENTER);
     
     
     
-		
-		secondP.add(colorDialog, BorderLayout.CENTER);
-		*/
+    
+    
 		tabPane.add("Settings", settingsPanel);
 		
 		
@@ -616,7 +532,7 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		} else if (source == palletteBtn) {
 			colorDialog.setVisible(!colorDialog.isVisible());
 			palletteBtn.setSelected(colorDialog.isVisible());
-		}
+		} 
 		
 		/************************************
 		 * Reset button in pallette control *
@@ -643,11 +559,31 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		} else if (source == exitMI) {
 			mainFrame.dispose(); /* TODO: "Do you want to save?" */
 			System.exit(0);
-		} else {
-			System.err.println("Unknown source of actionEvent. (The button you just clicked does nothing)");
 		}
 		
 		
+		
+		
+		/*********************
+		 * Tiles tab buttons *
+		 *********************/
+		else if (source == tilesetNewBtn) {
+			newTileset();
+		} else if (source == tilesetOpenBtn) {
+			openTileset();
+		} else if (source == tilesetSaveBtn) {
+			saveTileset();
+		}
+		
+		
+		
+		/*********************
+		 * None of the above *
+		 *********************/
+		
+		else {
+			System.err.println("Unknown source of actionEvent. (The button you just clicked does nothing)");
+		}
 		/* Multiple buttons may fire the following code */
 		
 		if(source == zoomInBtn || source == zoomOutBtn || source == zoomFullBtn || source == effectsResetBtn) {
@@ -721,15 +657,23 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		return tileChooser.getSelectedTile();
 	}
 	
-	/**
-	 * Set the tileChooser to use this graphicsBank.
-	 * DOES NOT CHANGE THE BANK OF THE MAP
-	 **/
 	private void setGraphicsBank(GraphicsBank gfx)
 	{
-		tileChooser = new TileChooser(gfx, mainFrame);
+		this.gfx = gfx;
+		scene.setTileset(gfx);
 		chooserPanel.removeAll();
-		chooserPanel.add(tileChooser, BorderLayout.NORTH);
+		tileChooser = new TileChooser(gfx, mainFrame);
+		chooserPanel.add(tilesetInfoPane, BorderLayout.NORTH);
+		JScrollPane tileScroll = new JScrollPane(tileChooser);
+		chooserPanel.add(tileScroll, BorderLayout.CENTER);
+		mainFrame.repaint();
+		if(gfx.getFile() != null) {
+			tilesetFileLabel.setText("Tileset: " + gfx.getFile().getName());
+			tilesetFileLabel.setToolTipText(gfx.getFile().toString());
+		} else {
+			tilesetFileLabel.setText("Tileset: * Unsaved *");
+			tilesetFileLabel.setToolTipText("");
+		}
 	}
 	
 	public GraphicsBank getCurrentGraphicsBank() {
@@ -742,9 +686,20 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 	public void saveFile(File file)
 	{
 	  System.err.println("Saving scene as "+file);
-		scene.saveScene(file);
-		openFile = file;
-		mainFrame.validate();
+	  
+    if(scene.getTileset().isUnsaved()) {
+    	System.out.println("?? 2 " + (scene.getTileset() == gfx));
+    	PromptDialog.tell("Please save your tileset first.", "OK");
+    	return;
+    }
+	  try {
+			scene.saveScene(file);
+			openFile = file;
+			mainFrame.validate();
+		} catch (Exception e) {
+			PromptDialog.tell("Could not save: "+e, "OK");
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -758,6 +713,7 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 			scene = Scene.loadScene(file);
 			map = scene.getMap();
 			setGraphicsBank(scene.getTileset());
+			System.out.println("Scene caused tileset "+gfx.getFile()+" to be loaded");
 			
 			mapPanel.setMap(map);
 			
@@ -787,13 +743,14 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 	 **/
   public void newFile()
   {
+  	/*
     GraphicsBank gfx = new GraphicsBank();
     try {
-      gfx.loadTileset(new File("gfx/outdoors.dat"));
+      //gfx.loadTileset(new File("gfx/outdoors.dat"));
     } catch(Exception e) {
       System.err.println("Could not load default graphics bank, using blank one.");
       gfx = new GraphicsBank();
-    }
+    } */
     scene = new Scene(new Map(10,10), new ArrayList(), gfx);
     zoomLevel = 1;
     map = scene.getMap();
@@ -897,30 +854,54 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		mapPanel.refreshZoom();
 	}
 	
-	/**
-	 * Remove or add the change listener to the sliders.
-	 * This is probably a really bad way of doing it.
-	 **/
+	int getPaintMode() {
+		if(fillBtn.isSelected()) {
+			return PAINT_FILL;
+		} else {
+			return PAINT_NORMAL;
+		}
+	}
+	
 	private void setIgnoreEffectChanges(boolean ign) {
 		ignoreEffects = ign;
-		/*try {
-			if(ign) {
-				r.removeChangeListener(this);
-				g.removeChangeListener(this);
-				b.removeChangeListener(this);
-				h.removeChangeListener(this);
-				s.removeChangeListener(this);
-			} else {
-				r.addChangeListener(this);
-				g.addChangeListener(this);
-				b.addChangeListener(this);
-				h.addChangeListener(this);
-				s.addChangeListener(this);
+	}
+	
+	void newTileset() {
+		gfx = new GraphicsBank();
+		setGraphicsBank(gfx);
+	}
+	
+	void openTileset() {
+		try {
+			int success = tschooser.showOpenDialog(mainFrame);
+			if (success == JFileChooser.APPROVE_OPTION) {
+				GraphicsBank g = new GraphicsBank();
+				g.loadTileset(tschooser.getSelectedFile());
+				setGraphicsBank(g);
 			}
-		} catch(Exception e) {
-			System.out.println("Can't set that: "+e);
+		} catch(FileNotFoundException e) {
+			PromptDialog.tell("Selected file could not be found", "OK");
+			System.out.println(e);
+			e.printStackTrace();
+		} catch(IOException e) {
+			PromptDialog.tell("Could not read the file", "OK");
+			System.out.println(e);
+			e.printStackTrace();
 		}
-		*/
+	}
+	
+	void saveTileset() {
+		try {
+			int success = tschooser.showSaveDialog(mainFrame);
+			if (success == JFileChooser.APPROVE_OPTION) {
+				gfx.saveTileset(tschooser.getSelectedFile());
+				setGraphicsBank(gfx);
+			}
+		} catch(IOException e) {
+			PromptDialog.tell("Could not read the file", "OK");
+			System.out.println(e);
+			e.printStackTrace();
+		}
 	}
 	
 	

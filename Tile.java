@@ -49,7 +49,7 @@ public class Tile
     zoomWidth = imageWidth;
     zoomHeight = imageHeight;
     
-    System.out.println(imageWidth);
+    //System.out.println(imageWidth);
   }
   
   public Tile(int number, String path, String name, String type, String info)

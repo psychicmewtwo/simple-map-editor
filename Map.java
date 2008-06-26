@@ -1,5 +1,6 @@
 import java.awt.Graphics;
 import java.awt.*;
+import java.util.*;
 
 
 /**
@@ -36,6 +37,8 @@ public class Map
 	
 	GraphicsBank gfx;
 	
+	ArrayList changeListeners;
+	
 	final static int LAYERS = 3;
 	
 	
@@ -47,6 +50,7 @@ public class Map
 	public Map(int width, int height)
 	{
 		tiles = new Tile[width][height][LAYERS];
+		changeListeners = new ArrayList();
 	}
 	
 	
@@ -58,7 +62,7 @@ public class Map
 	 */
 	public Map(int width, int height, int tileWidth, int tileHeight)
 	{
-		tiles = new Tile[width][height][LAYERS];
+		this(width, height);
 		this.tileWidth = tileWidth;
 		this.tileHeight = tileHeight;
 		zoomWidth = tileWidth;
@@ -320,6 +324,7 @@ public class Map
 	 * You can set a different GraphicsBank as well.
 	 **/
 	public void setAllTiles(int[][][] set, GraphicsBank bank) {
+		gfx = bank;
 		resize(tiles.length, tiles[0].length, tiles[0][0].length);
 		
 		/*
@@ -342,4 +347,34 @@ public class Map
 		}
 		*/
 	}
+	
+	/* Note: Behaviour unknown. */
+	public void setTileset(GraphicsBank gfx) {
+		int[][][] set = this.toIntArray();
+		this.setAllTiles(set, gfx);
+	}
+	
+	public void addChangeListener(MapChangeListener l) {
+		changeListeners.add(l);
+	}
+	public void removeChangeListener(MapChangeListener l) {
+		changeListeners.remove(l);
+	}
+	
+	private void fireChangingEvent(boolean m) {
+		Iterator i = changeListeners.iterator();
+		((MapChangeListener)i.next()).mapChanging(m);
+	}
+	private void fireChangedEvent(boolean m) {
+		Iterator i = changeListeners.iterator();
+		((MapChangeListener)i.next()).mapChanged(m);
+	}
+	
+	
+}
+
+
+interface MapChangeListener {
+	public void mapChanging(boolean major);
+	public void mapChanged(boolean major);
 }
