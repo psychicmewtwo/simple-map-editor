@@ -116,12 +116,6 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		
 		map = scene.getMap();
 		gfx = scene.getTileset();
-		try {
-			System.out.println("dragOver");
-			gfx.saveTileset(new File("temp.txt"));
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
 		/* so that the window contents resize while you drag. */
 		Toolkit.getDefaultToolkit().setDynamicLayout(true); 
 		
