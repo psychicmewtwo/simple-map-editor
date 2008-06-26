@@ -73,6 +73,7 @@ public class GraphicsBank {
 			isUnsaved = false;
 		}
     
+    System.out.println(from);
     baseDirectory = from.getParentFile();
     this.loadedFrom = from;
     
