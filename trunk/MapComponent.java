@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * a JComponent view of the map. Supports setting tiles on a map.
  */
-public class MapComponent extends JComponent implements MouseListener, MouseMotionListener
+public class MapComponent extends JComponent implements MouseListener, MouseMotionListener, MapChangeListener
 {
 	Map map;
 	MapEdit mapEdit;
@@ -335,11 +335,28 @@ public class MapComponent extends JComponent implements MouseListener, MouseMoti
 	}
 	
 	
+	public void mapChanging(boolean major) {
+		if(!major) {
+			saveUndoState();
+		} else {
+			clearUndoInfo();
+		}
+	}
+	
+	public void mapChanged(boolean major) {
+		repaint();
+	}
+	
+	
 	
 	/********
 	 * Undo *
 	 ********/
 	
+	public void clearUndoInfo() {
+		redoStack.clear();
+		undoStack.clear();
+	}
 	void saveUndoState()
 	{
 		redoStack.clear();

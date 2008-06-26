@@ -53,6 +53,12 @@ public class Scene
 		return tileset;
 		
 	}
+	
+	public void setTileset(GraphicsBank gfx) {
+		tileset = gfx;
+		map.setTileset(gfx);
+	}
+	
 	/**
 	 * loads a scene from the given URL. takes tiles from the given GraphicsBank.
 	 */
@@ -76,16 +82,10 @@ public class Scene
 		String tileset = tokens.nextToken();
 		
 		GraphicsBank gfx = new GraphicsBank();
-    
-    System.out.println("Attempt to load tileset "+tileset);
-    
-    
-    
-    System.out.println("Working path is "+f.getParentFile());
 		
+		System.out.println("Attempt to load tileset "+tileset);
 		
-		
-		
+		System.out.println("Working path is "+f.getParentFile());
 		
 		File ts = new File(f.getParentFile(), tileset);
 		System.out.println("Attempt to load tileset "+ts.getAbsoluteFile());
@@ -152,8 +152,7 @@ public class Scene
     if(tileset.isUnsaved()) {
       throw new RuntimeException("Tileset is unsaved. Cannot save the scene");
     }
-    
-	 
+		
 		try
 		{
 			PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(file)));

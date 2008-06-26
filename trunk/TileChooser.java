@@ -41,7 +41,7 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 	
 	FileDropHandler fileDrop;
 	
-	public TileChooser(GraphicsBank gfx, JFrame dialogOwner)
+	public TileChooser(GraphicsBank gfx)
 	{
 		tilePanel = new JPanel();
 		layout = new GridLayout(0,5);
@@ -65,9 +65,21 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 		setTransferHandler(fileDrop);
 		gfx.addChangeListener(this);
 		
+		propertiesDialog = null;
+		
+	}
+	
+	public TileChooser(GraphicsBank gfx, JFrame dialogOwner) {
+		this(gfx);
+		createPropertiesDialog(dialogOwner);
+	}
+	
+	void createPropertiesDialog(JFrame dialogOwner) {
 		
 		/* Setup for the proeprties dialog */
 		propertiesDialog = new JDialog(dialogOwner, "Tile Properties");
+		propertiesDialog.setSize(300, 300); //to set location better
+		propertiesDialog.setLocationRelativeTo(null);
 		tileName = new JTextField("", 20);
 		tileType = new JTextField("", 20);
 		imageFile = new JTextField("", 20);
@@ -145,7 +157,6 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 		propertiesDialog.setSize(300, 500);
 		propertiesDialog.setResizable(false);
 		
-		
 	}
 	
 	/**
@@ -156,10 +167,15 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 		tilePanel.removeAll();
 		group = new ButtonGroup();
 		
+		TileButton b = new TileButton(null);
+		tilePanel.add(b);
+		group.add(b);
+		count ++;
+		
 		Iterator i = gfx.iterator();
 		while(i.hasNext())
 		{
-			TileButton b = new TileButton((Tile)i.next());
+			b = new TileButton((Tile)i.next());
 			tilePanel.add(b);
 			group.add(b);
 			count ++;
@@ -218,7 +234,7 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 	
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource() == applyBtn) {
+		if(e.getSource() == applyBtn && propertyTile != null) {
 			propertyTile.name = tileName.getText();
 			propertyTile.type = tileType.getText();
 			propertyTile.number = ((Integer)tileNumber.getValue()).intValue();
@@ -229,10 +245,11 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 			propertiesDialog.dispose();
 			propertyTile = null;
 		} else if(e.getSource() == deleteBtn) {
-			gfx.remove(propertyTile);
+			if(propertyTile != null) {
+				gfx.remove(propertyTile);
+				propertyTile = null;
+			}
 			propertiesDialog.dispose();
-			propertyTile = null;
-			
 		} else {
 			System.err.println("Unknown button fired action. "+e);
 		}
@@ -256,11 +273,33 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 	void showProperties(Tile t) {
 		propertyTile = t;
 		
-		userText.setText(t.getInfo());
-		tileNumber.setValue(new Integer(t.getNumber()));
-		tileName.setText(t.getName());
-		tileType.setText(t.getType());
-		tileImg.setIcon(new ImageIcon(t.getImage()));
+		if(t != null) {
+			userText.setText(t.getInfo());
+			tileNumber.setValue(new Integer(t.getNumber()));
+			tileName.setText(t.getName());
+			tileType.setText(t.getType());
+			tileImg.setIcon(new ImageIcon(t.getImage()));
+			
+			applyBtn.setEnabled(true);
+			deleteBtn.setEnabled(true);
+			userText.setEditable(true);
+			tileNumber.setEnabled(true);
+			tileName.setEditable(true);
+			tileType.setEditable(true);
+		} else {
+			userText.setText("");
+			tileNumber.setValue(new Integer(0));
+			tileName.setText("Null (Erases existing tiles)");
+			tileType.setText("");
+			tileImg.setIcon(null);
+			
+			userText.setEditable(false);
+			tileNumber.setEnabled(false);
+			tileName.setEditable(false);
+			tileType.setEditable(false);
+			applyBtn.setEnabled(false);
+			deleteBtn.setEnabled(false);
+		}
 		
 		propertiesDialog.pack();
 		propertiesDialog.setVisible(true);
@@ -268,25 +307,29 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 	}
 	
 	public void importImageAsTile(File f) throws IOException {
-		
+		System.out.println("Import "+f);
 		try {
 			ImageIO.read(f);
 		} catch(Exception e) {
+			System.out.println("FAIL");
 			return;
 		}
 		
-		File base = new File(gfx.getBaseDirectory().getCanonicalPath());
+		System.out.println("getbasedir.... ahuh!");
+		//File base = new File(gfx.getBaseDirectory().getCanonicalPath());
 		
+		System.out.println("?1");
 		int n = gfx.getUnusedNumber();
-		
+		System.out.println("?2");
 		Tile t = new Tile(n, f.getAbsolutePath(), "New Tile "+n, "No Type");
 		
 		
+		System.out.println("Adding "+f);
 		gfx.add(t);
 		
-		showProperties(t);
-		
-		
+		if(propertiesDialog != null) {
+			showProperties(t);
+		}
 	}
 	
 	
@@ -305,15 +348,18 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 		public TileButton(Tile t)
 		{
 			super();
-			Image i = t.getImage();
 			
-			Image i2 = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
-			i2.getGraphics().drawImage(i, 0, 0, 32, 32, null);
+			Image i2 = new BufferedImage(gfx.getBaseTileSize().width, gfx.getBaseTileSize().height, BufferedImage.TYPE_INT_ARGB);
+			
+			if(t != null) {
+				Image i = t.getImage();
+				i2.getGraphics().drawImage(i, 0, 0, 32, 32, null);
+				setToolTipText(t.getName());
+			}
 			
 			setIcon(new ImageIcon(i2));
 			
 			
-			setToolTipText(t.getName());
 			setMargin(new Insets(2,2,2,2));
 			tile = t;
 			

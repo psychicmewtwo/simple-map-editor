@@ -1,4 +1,13 @@
 
+-------------------------------
+    Unstable Version 1.0
+-------------------------------
+Tileset management
+- Save and load tilesets
+- Add tiles to tilesets via drag n drop.
+- Right click tiles to edit information.
+
+
 
 -------------------------------
     Unstable Version 0.11
