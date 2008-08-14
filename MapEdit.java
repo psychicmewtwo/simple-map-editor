@@ -60,7 +60,6 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 	JButton       decreaseWidthBtn;
 	JButton       increaseHeightBtn;
 	JButton       decreaseHeightBtn;
-	JButton       tsEditBtn;
 	JToggleButton palletteBtn;
 	
 	/* Second toolbar buttons */
@@ -351,7 +350,6 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		increaseHeightBtn = makeBtn("\\/ +", "icons/increaseHeight.gif", "Increase field height");
 		decreaseHeightBtn = makeBtn("^^ -",  "icons/decreaseHeight.gif", "Decrease field height");
 		
-		tsEditBtn = makeBtn("Tileset",  "icons/tsEdit.gif", "Tileset Editor");
 		
 		/* Other map manipulation buttons */
 		fillBtn = makeToggleBtn("Flood Fill", "icons/fill.gif", "Flood fill mode");
@@ -418,7 +416,6 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 		innerToolBar.add(decreaseHeightBtn);
 		
 		innerToolBar.addSeparator();
-		innerToolBar.add(tsEditBtn);
 		
 		gridBtn.setSelected(true);
 		layerButtons[0].setSelected(true);
@@ -900,12 +897,16 @@ public class MapEdit implements ActionListener, ChangeListener, KeyListener
 	
 	
 	
+	//String userHome = System.getProperty("user.home");
+	
 	public static void main(String[] a)
 	{
+		//System.out.print("The default OpenGL setting on this system is ");
+		//System.out.print(System.getProperty("sun.java2d.opengl"));
+		//System.setProperty("sun.java2d.opengl", "true");
+		
 		new MapEdit();
 	}
-	
-	
 	
 	
 	

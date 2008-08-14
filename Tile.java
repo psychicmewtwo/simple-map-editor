@@ -54,10 +54,11 @@ public class Tile
   
   public Tile(int number, String path, String name, String type, String info)
   {
-    this(number, path, name, info);
+    this(number, path, name, type);
     if(info.indexOf(',') >= 0) {
       throw new RuntimeException("Info string cannot contain \",\" characters");
     }
+    this.info = info;
   }
   /**
    * Creates a shallow copy of the given tile.

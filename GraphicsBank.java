@@ -18,7 +18,7 @@ public class GraphicsBank {
   final static int DEFAULT_TILE_WIDTH = 32;
   final static int DEFAULT_TILE_HEIGHT = 32;
   
-  final static String GB_VERSION = "pre-1";
+  final static String GB_VERSION = "1.0";
   final static String DELIM      = ",";
   final static char   COMMENT    = '#';
   final static int    ID         = 0;
