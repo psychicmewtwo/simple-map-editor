@@ -364,10 +364,12 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 			tile = t;
 			
 			this.addMouseListener(this);
+			this.addActionListener(this);
 		}
 		
 		public void actionPerformed(ActionEvent e)
 		{
+			selectedTile = tile;
 		}
 		
 		
@@ -381,10 +383,6 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 			if(SwingUtilities.isRightMouseButton(e))
 			{
 				showProperties(tile);
-			}
-			else if (SwingUtilities.isLeftMouseButton(e))
-			{
-				selectedTile = tile;
 			}
 		}
 		
