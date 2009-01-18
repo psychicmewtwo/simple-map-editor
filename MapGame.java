@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
-import static java.lang.System.out;
 
 
 public class MapGame implements KeyListener {
@@ -61,7 +60,7 @@ public class MapGame implements KeyListener {
 	
 	
 	public static void main(String[] a) throws Exception {
-		out.println("Hello!");
+		
 		mainFrame = new JFrame("MapGame");
 		mainFrame.setSize(800, 600);
 		mainFrame.setLocationRelativeTo(null);

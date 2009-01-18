@@ -230,6 +230,8 @@ public class Scene
 	/**
 	 * renders the scene to the graphics context.
 	 * at the moment, sprites appear above everything else.
+	 *
+	 * TODO: Fix this up.
 	 */
 	void render(Graphics g)
 	{
@@ -239,7 +241,7 @@ public class Scene
 		for(int i=0; i<sprites.size(); i++)
 		{
 			Sprite s = (Sprite)sprites.get(i);
-			s.render(g, offsetX, offsetY);
+			//s.render(g, offsetX, offsetY);
 		}
 		
 	}
