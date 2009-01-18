@@ -245,9 +245,11 @@ public class Scene
 	}
 	public void render(Graphics g, int offX, int offY)
 	{
-		
 		map.render(g, offX, offY);
-		
+	}
+	public void render(Graphics g, Camera c)
+	{
+		map.render(g, c);
 	}
 	
 	
