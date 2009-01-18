@@ -307,6 +307,21 @@ public class TileChooser extends JPanel implements ActionListener, GraphicsBankC
 	}
 	
 	public void importImageAsTile(File f) throws IOException {
+		importImageAsTile(f, 0);
+	}
+	
+	public void importImageAsTile(File f, int level) throws IOException {		
+		
+		if(f.isDirectory()) {
+			File[] contents = f.listFiles();
+			
+			for(int num = 0; num < contents.length; num++) {
+				importImageAsTile(contents[num]);
+			}
+		}
+			
+		
+		
 		System.out.println("Import "+f);
 		try {
 			ImageIO.read(f);
