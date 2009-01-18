@@ -29,6 +29,9 @@ public class GraphicsBank {
   
   
   private ArrayList tiles;
+  private ArrayList sprites;
+  
+  
   private ArrayList changeListeners;
   File loadedFrom;
   File baseDirectory;
@@ -39,12 +42,22 @@ public class GraphicsBank {
   
   public GraphicsBank() {
     tiles = new ArrayList();
+    sprites = new ArrayList();
     changeListeners = new ArrayList();
     loadedFrom = null;
     
     baseTileSize = new Dimension(DEFAULT_TILE_WIDTH, DEFAULT_TILE_HEIGHT);
     
     isUnsaved = true;
+  }
+  
+  public void addSprite(String anmFile) {
+  	addSprite(new File(anmFile));
+  }
+  
+  public void addSprite(File anmFile) {
+  	
+  	
   }
   
   

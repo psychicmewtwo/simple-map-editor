@@ -10,13 +10,22 @@ import java.awt.Graphics;
  */
 public interface Sprite
 {
-	public int x=0;
-	public int y=0;
+	final static float RIGHT       = (float) (0 * (2 * Math.PI) / 8);
+	final static float DOWN_RIGHT  = (float) (1 * (2 * Math.PI) / 8);
+	final static float DOWN        = (float) (2 * (2 * Math.PI) / 8);
+	final static float DOWN_LEFT   = (float) (3 * (2 * Math.PI) / 8);
+	final static float LEFT        = (float) (4 * (2 * Math.PI) / 8);
+	final static float UP_LEFT     = (float) (5 * (2 * Math.PI) / 8);
+	final static float UP          = (float) (6 * (2 * Math.PI) / 8);
+	final static float UP_RIGHT    = (float) (7 * (2 * Math.PI) / 8);
 	
 	/**
 	 * render this sprite to the graphics.
 	 */
-	public void render(Graphics g, int offsetX, int offsetY);
+	public void render(Graphics g, Camera c);
+	
+	public float getX();
+	public float getY();
 	
 	/**
 	 * override this method to update AI. Only use this method,
