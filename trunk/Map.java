@@ -129,6 +129,11 @@ public class Map
 		}
 	}
 	
+	public void render(Graphics g, Camera c) {
+		setViewSize(c.viewWidth, c.viewHeight);
+		render(g, (int)(c.viewx - viewWidth/2), (int)(c.viewy - viewHeight/2));
+	}
+	
 	/**
 	 * used by the level editor, renders a portion of the map with the
 	 * given origin and visible dimension.<p>
